@@ -10,12 +10,15 @@ rem ===== update appinstaller =====
 winget -v >nul 2>nul && ( break ) || (
     call :ColorText 01 "[+] updating Microsoft Store App Installer . . ."
     echo.
+    curl "https://store.rg-adguard.net/api/GetFiles" --data-raw "type=url&url=https://apps.microsoft.com/store/detail/app-installer/9NBLGGH4NNS1&ring=RP&lang=en-US" -o "%temp%\getmsfiles.html"
+    
     powershell Add-AppxPackage -Path "Software\Microsoft.UI.Xaml.2.7_7.2208.15002.0_x64__8wekyb3d8bbwe.Appx"
     powershell Add-AppxPackage -Path "Software\Microsoft.VCLibs.x64.14.00.Desktop.appx"
     powershell Add-AppxPackage -Path "Software\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
     winget -v >nul 2>nul && ( break ) || (
         call :ColorText 04 "[!] COULD NOT UPDATE."
         echo.
+        echo you may try to update "App Installer" from the Microsoft Store manually
         echo Press any key to exit . . .
         pause 2>nul >nul
         exit /b %errorlevel%
