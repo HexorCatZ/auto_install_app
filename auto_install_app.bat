@@ -8,30 +8,21 @@ break >nul
 
 rem ===== update appinstaller =====
 winget -v >nul 2>nul && ( break ) || (
-    call :ColorText 01 "[+] updating Microsoft Store App Installer . . ."
+    call :ColorText 04 "[!] APP INSTALLER IS NOT UPDATED."
     echo.
-    curl "https://store.rg-adguard.net/api/GetFiles" --data-raw "type=url&url=https://apps.microsoft.com/store/detail/app-installer/9NBLGGH4NNS1&ring=RP&lang=en-US" -o "%temp%\getmsfiles.html"
-    
-    powershell Add-AppxPackage -Path "Software\Microsoft.UI.Xaml.2.7_7.2208.15002.0_x64__8wekyb3d8bbwe.Appx"
-    powershell Add-AppxPackage -Path "Software\Microsoft.VCLibs.x64.14.00.Desktop.appx"
-    powershell Add-AppxPackage -Path "Software\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
-    winget -v >nul 2>nul && ( break ) || (
-        call :ColorText 04 "[!] COULD NOT UPDATE."
-        echo.
-        echo you may try to update "App Installer" from the Microsoft Store manually
-        echo Press any key to exit . . .
-        pause 2>nul >nul
-        exit /b %errorlevel%
-    )
+    echo Please update App Installer from Microsoft Store.
+    echo Press any key to exit . . .
+    pause 2>nul >nul
+    exit /b %errorlevel%
 )
 
 rem ===== copy file to desktop =====
-setlocal
-if not "%~dp0%~n0.bat" == "%USERPROFILE%\Desktop\%~n0.bat" (
-  copy "%0" "%USERPROFILE%\Desktop\%~n0.bat"
-  start "" "%USERPROFILE%\Desktop\%~n0.bat"
-  exit
-)
+rem setlocal
+rem if not "%~dp0%~n0.bat" == "%USERPROFILE%\Desktop\%~n0.bat" (
+rem   copy "%0" "%USERPROFILE%\Desktop\%~n0.bat"
+rem   start "" "%USERPROFILE%\Desktop\%~n0.bat"
+rem   exit
+rem )
 
 rem ===== check for admin =====
 net session >nul 2>nul
@@ -54,6 +45,8 @@ REM default CMD size 120x30 letter :
 REM ========================================================================================================================
 
 REM application list
+REM to add application here please search the apps name from winget using 'winget search "<app name>"'.
+REM the format is '-<id> <name>'
 rem ===== menu1 =====
 set menu1=System Application
 set m1o1=-vcredist                          Microsoft Visual C++ 2005-2023 Redistributable [ALL VERSION]
@@ -96,10 +89,10 @@ set m4o4=-Telegram.TelegramDesktop          Telegram Desktop
 set m4o5=-XPFCKBRNFZQ62G                    WeChat                        [MS Store]
 set m4o6=-9NKSQGP7F2NH                      WhatsApp                      [MS Store]
 set m4o7=-Facebook.Messenger                Facebook Messenger
-set m4o8=-9NBLGGH5L9XT						Instagram
+set m4o8=-9NBLGGH5L9XT                      Instagram
 set m4o9=-
 rem ===== menu5 =====
-set menu5=Online Meeting or Remote Desktop Application
+set menu5=Online Meeting and Remote Desktop Application
 set m5o1=-AnyDeskSoftwareGmbH.AnyDesk       AnyDesk
 set m5o2=-Microsoft.Teams                   Microsoft Teams
 set m5o3=-Parsec.Parsec                     Parsec
@@ -116,9 +109,9 @@ set m6o2=-GOMLab.GOMPlayer                  GOM Player
 set m6o3=-Winamp.Winamp                     Winamp
 set m6o4=-CodecGuide.K-LiteCodecPack.Basic  K-Lite Codec Pack Basic
 set m6o5=-9NCBCSZSJRSB                      Spotify - Music and Podcasts  [MS Store]
-set m6o6=-
-set m6o7=-
-set m6o8=-
+set m6o6=-Ytmdesktop.Ytmdesktop             YouTube Music Desktop App
+set m6o7=-Audacity.Audacity                 Audacity
+set m6o8=-MiXXX.MiXXX                       mixxx
 set m6o9=-
 rem ===== menu7 =====
 set menu7=Utilities Software
@@ -148,9 +141,9 @@ set m9o1=-CPUID.CPU-Z                       CPUID CPU-Z
 set m9o2=-CPUID.HWMonitor                   CPUID HWMonitor
 set m9o3=-REALiX.HWiNFO                     HWiNFO
 set m9o4=-Guru3D.Afterburner                Afterburner
-set m9o5=-
-set m9o6=-
-set m9o7=-
+set m9o5=-FinalWire.AIDA64.Extreme          AIDA64 Extreme
+set m9o6=-Unigine.SuperpositionBenchmark    Unigine Superposition Benchmark
+set m9o7=-Unigine.HeavenBenchmark           Unigine Heaven Benchmark
 set m9o8=-
 set m9o9=-
 goto mainmenu
@@ -248,14 +241,15 @@ for /l %%b in (1,1,9) do (
 echo.
 echo.
 if !menu!==1 (
-    echo  Press "N" for Next
+    echo  Press "N" for Next, and "I" to install.
 ) else (
-    echo  Press "N" for Next, and "B" for Back
+    echo  Press "N" for Next, "B" for Back, and "I" to install.
 )
 
 echo  Press "Q" to Quit
-choice /C 123456789nbq /N /M "Your choice: "
+choice /C 123456789nbqi /N /M "Your choice: "
 set choice=%errorlevel%
+if %choice%==13 goto list
 if %choice%==12 goto mainmenu
 if %choice%==11 ( set /a menu=!menu!-1 )
 if %choice%==10 ( set /a menu=!menu!+1 )
@@ -278,13 +272,15 @@ cls
 echo List all application to install :
 set totalapp=0
 set currentinstall=1
-for /l %%a in (1,1,9) do (
+for /l %%a in (1,1,%menumax%) do (
     for /l %%b in (1,1,9) do (
         for /f "tokens=2,* delims== " %%i in ('set m%%ao%%b') do (
             set appname=%%i
             if "!appname:~0,1!"=="+" (
                 set /a totalapp=!totalapp!+1
-                if m%%ao%%b==m1o1 ( set /a totalapp=!totalapp!+12 )
+                rem if m%%ao%%b==m1o1 (
+				rem 	set /a totalapp=!totalapp!+12
+				rem )
                 echo [+] !totalapp!. %%j
             )
         )
@@ -344,18 +340,23 @@ pause
 goto :EOF
 
 :vcredist
-call :winstall Microsoft.VCRedist.2015+.x86
-call :winstall Microsoft.VCRedist.2015+.x64
-call :winstall Microsoft.VCRedist.2013.x86
-call :winstall Microsoft.VCRedist.2013.x64
-call :winstall Microsoft.VCRedist.2012.x86
-call :winstall Microsoft.VCRedist.2012.x64
-call :winstall Microsoft.VCRedist.2010.x8
-call :winstall Microsoft.VCRedist.2010.x64
-call :winstall Microsoft.VCRedist.2008.x86
-call :winstall Microsoft.VCRedist.2008.x64
-call :winstall Microsoft.VCRedist.2005.x86
-call :winstall Microsoft.VCRedist.2005.x64
+set /a currentinstall=%currentinstall%+1
+call :ColorText 01 "[+] (%currentinstall% of %totalapp%) installing"
+call :ColorText 04 " %1"
+echo.
+echo y | winget install ^
+    Microsoft.VCRedist.2015+.x86 ^
+    Microsoft.VCRedist.2015+.x64 ^
+    Microsoft.VCRedist.2013.x86 ^
+    Microsoft.VCRedist.2013.x64 ^
+    Microsoft.VCRedist.2012.x86 ^
+    Microsoft.VCRedist.2012.x64 ^
+    Microsoft.VCRedist.2010.x86 ^
+    Microsoft.VCRedist.2010.x64 ^
+    Microsoft.VCRedist.2008.x86 ^
+    Microsoft.VCRedist.2008.x64 ^
+    Microsoft.VCRedist.2005.x86 ^
+    Microsoft.VCRedist.2005.x64
 goto :EOF
 
 :winstall
