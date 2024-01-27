@@ -49,7 +49,7 @@ REM to add application here please search the apps name from winget using 'winge
 REM the format is '-<id> <name>'
 rem ===== menu1 =====
 set menu1=System Application
-set m1o1=-vcredist                          Microsoft Visual C++ 2005-2023 Redistributable [ALL VERSION]
+set m1o1=-abbodi1406.vcredist               Microsoft Visual C++ 2005-2023 Redistributable [ALL VERSION]
 set m1o2=-Nvidia.GeForceExperience          NVIDIA GeForce Experience
 set m1o3=-Microsoft.DirectX                 DirectX End-User Runtime Web Installer
 set m1o4=-
@@ -278,9 +278,6 @@ for /l %%a in (1,1,%menumax%) do (
             set appname=%%i
             if "!appname:~0,1!"=="+" (
                 set /a totalapp=!totalapp!+1
-                rem if m%%ao%%b==m1o1 (
-				rem 	set /a totalapp=!totalapp!+12
-				rem )
                 echo [+] !totalapp!. %%j
             )
         )
@@ -315,10 +312,7 @@ for /l %%a in (1,1,9) do (
     for /l %%b in (1,1,9) do (
         for /f "tokens=2,* delims==" %%i in ('set m%%ao%%b') do (
             set install=%%i
-            if "!install:~0,1!"=="+" (
-                if m%%ao%%b==m1o1 call :vcredist
-                call :winstall !install:~1!
-            )
+            if "!install:~0,1!"=="+" call :winstall !install:~1!
         )
     )
 )
@@ -337,26 +331,6 @@ for /l %%a in (1,1,9) do (
     )
 )
 pause
-goto :EOF
-
-:vcredist
-set /a currentinstall=%currentinstall%+1
-call :ColorText 01 "[+] (%currentinstall% of %totalapp%) installing"
-call :ColorText 04 " %1"
-echo.
-echo y | winget install ^
-    Microsoft.VCRedist.2015+.x86 ^
-    Microsoft.VCRedist.2015+.x64 ^
-    Microsoft.VCRedist.2013.x86 ^
-    Microsoft.VCRedist.2013.x64 ^
-    Microsoft.VCRedist.2012.x86 ^
-    Microsoft.VCRedist.2012.x64 ^
-    Microsoft.VCRedist.2010.x86 ^
-    Microsoft.VCRedist.2010.x64 ^
-    Microsoft.VCRedist.2008.x86 ^
-    Microsoft.VCRedist.2008.x64 ^
-    Microsoft.VCRedist.2005.x86 ^
-    Microsoft.VCRedist.2005.x64
 goto :EOF
 
 :winstall
