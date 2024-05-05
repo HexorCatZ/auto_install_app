@@ -10,27 +10,16 @@ rem ===== update appinstaller =====
 winget -v >nul 2>nul && ( break ) || (
     call :ColorText 04 "[!] APP INSTALLER IS NOT UPDATED."
     echo.
-    echo Please update App Installer from Microsoft Store.
-    echo Press any key to exit . . .
     choice /C yn /N /M "Force update using chocolatey? [Y/N] : "
     set choice=%errorlevel%
     if %choice%==1 (
-        set m3o1=+%m3o1:~1% & :: Google.Chrome
-        set m7o1=+%m7o1:~1% & :: VideoLAN.VLC
-        set m8o2=+%m8o2:~1% & :: Adobe.Acrobat.Reader.32-bit
-        set m8o5=+%m8o5:~1% & :: RARLab.WinRAR
-        goto list )
+        powershell "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))"
+        )
     if %choice%==2 (
-        set m3o1=+%m3o1:~1% & :: Google.Chrome
-        set m7o1=+%m7o1:~1% & :: VideoLAN.VLC
-        set m8o2=+%m8o2:~1% & :: Adobe.Acrobat.Reader.32-bit
-        set m8o5=+%m8o5:~1% & :: RARLab.WinRAR
-        set m4o1=+%m4o1:~1% & :: Microsoft.Office
-        set m6o6=+%m6o6:~1% & :: Zoom.Zoom
-        set m6o2=+%m6o2:~1% & :: Microsoft.Teams
-        set m5o6=+%m5o6:~1% & :: Microsoft.Skype
-        goto list )
-    pause 2>nul >nul
+        echo Please update App Installer from Microsoft Store.
+        echo Press any key to exit . . .
+        pause 2>nul >nul
+    )
     exit /b %errorlevel%
 )
 
